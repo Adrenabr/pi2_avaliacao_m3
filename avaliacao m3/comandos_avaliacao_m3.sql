@@ -1,3 +1,4 @@
+-- cria tabela usuarios
 CREATE TABLE usuarios (
     usuario_id SERIAL PRIMARY KEY,
     nome_usuario VARCHAR(50) UNIQUE NOT NULL,
@@ -13,12 +14,23 @@ CREATE TABLE usuarios (
     ultimo_login TIMESTAMP WITHOUT TIME ZONE,
     ativo BOOLEAN DEFAULT TRUE NOT NULL, -- se necessario ativação via email mudar
     cliente_id INT REFERENCES clientes(cliente_id), -- FK para vincular a tabela clientes
-    role_usuario VARCHAR(50) DEFAULT 'cliente', -- verificar necessidade de separar da tabela usuarios
-    --tipo_usuario INT NOT NULL, -- verificar antes de implementar
     primeiro_nome VARCHAR(50),
     ultimo_nome VARCHAR(50),
     foto_perfil VARCHAR(255) -- caminho para img de perfil do usuario
 );
+-- cria tabela roles(cargos de usuarios)
+CREATE TABLE roles (
+    role_id SERIAL PRIMARY KEY,
+    nome_role VARCHAR(50) UNIQUE NOT NULL,
+    descricao TEXT
+);
+-- cria tabela de junção usuarios x roles
+CREATE TABLE usuarios_roles (
+    usuario_id INT NOT NULL REFERENCES usuarios(usuario_id) ON DELETE CASCADE,
+    role_id INT NOT NULL REFERENCES roles(role_id) ON DELETE CASCADE,
+    PRIMARY KEY (usuario_id, role_id)
+);
+-- cria tabela clientes
 CREATE TABLE clientes (
     cliente_id SERIAL PRIMARY KEY,
     nome_cliente VARCHAR(100) NOT NULL, -- caso PJ, o responsável
@@ -41,3 +53,9 @@ CREATE TABLE clientes (
     status_cliente VARCHAR(20),
     data_cadastro TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
+
+-- insere role(cargo) na tabela roles
+INSERT INTO roles (nome_role) VALUES ('Cliente');
+-- associa um usuario a uma role(cargo) na tabela de junção usuarios_roles onde: (usuario_id, (SELECIONA role_id DE roles ONDE nome_role = 'Nome_da_role'))
+INSERT INTO usuarios_roles (usuario_id, role_id) VALUES (1, (SELECT role_id FROM roles WHERE nome_role = 'Cliente'));
+-- OBS: Para associar mais de uma role a um mesmo usuário apenas modifique o nome da role
