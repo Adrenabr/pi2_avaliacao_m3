@@ -16,7 +16,8 @@ CREATE TABLE usuarios (
     cliente_id INT REFERENCES clientes(cliente_id), -- FK para vincular a tabela clientes
     primeiro_nome VARCHAR(50),
     ultimo_nome VARCHAR(50),
-    foto_perfil VARCHAR(255) -- caminho para img de perfil do usuario
+    foto_perfil VARCHAR(255), -- caminho para img de perfil do usuario
+    descricao_anunciante TEXT -- verificar possibilidade de separar uma tabela anunciante
 );
 -- cria tabela roles(cargos de usuarios)
 CREATE TABLE roles (
@@ -53,6 +54,52 @@ CREATE TABLE clientes (
     status_cliente VARCHAR(20),
     data_cadastro TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
+-- cria tabela categorias para categorizar os anuncios
+CREATE TABLE categorias (
+    categoria_id SERIAL PRIMARY KEY,
+    nome_categoria VARCHAR(100) UNIQUE NOT NULL,
+    descricao TEXT,
+    data_cadastro TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW() -- verificar necessidade de especificar nome para melhor legibilidade
+);
+-- cria tabela anuncios para armazenar informações dos anuncios
+CREATE TABLE anuncios (
+    anuncio_id SERIAL PRIMARY KEY,
+    usuario_id INT NOT NULL REFERENCES usuarios(usuario_id) ON DELETE CASCADE,
+    categoria_id INT NOT NULL REFERENCES categorias(categoria_id),
+    titulo_anuncio VARCHAR(255) NOT NULL,
+    descricao TEXT NOT NULL,
+    preco DECIMAL(10, 2) NOT NULL,
+    data_publicacao TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    data_atualizacao TIMESTAMP WITHOUT TIME ZONE,
+    status_anuncio VARCHAR(20) CHECK (status_anuncio IN ('ativo', 'inativo', 'vendido', 'reservado', 'expirado')) DEFAULT 'ativo',
+    localizacao VARCHAR(255), -- verificar possibilidade de especificidades
+    destaque BOOLEAN DEFAULT FALSE, -- caso esteja em destaque
+    visualizacoes INT DEFAULT 0,
+    PRIMARY KEY (anuncio_id)
+);
+-- cria tabela imagens_anuncios para armazenar multiplas imagens dos anuncios
+CREATE TABLE imagens_anuncios (
+    imagem_id SERIAL PRIMARY KEY,
+    anuncio_id INT NOT NULL REFERENCES anuncios(anuncio_id) ON DELETE CASCADE,
+    url_imagem VARCHAR(255) NOT NULL,
+    descricao_imagem VARCHAR(255),
+    ordem INT DEFAULT 1 -- define a ordem de exibição das imagens
+);
+-- cria tabela avaliacoes para armazenar as avaliações dos produtos ou anunciantes
+CREATE TABLE avaliacoes (
+    avaliacao_id SERIAL PRIMARY KEY,
+    usuario_avaliador_id INT NOT NULL REFERENCES usuarios(usuario_id) ON DELETE CASCADE,
+    usuario_avaliado_id INT NOT NULL REFERENCES usuarios(usuario_id), -- avalia o anunciante(testar função)
+    anuncio_id INT REFERENCES anuncios(anuncio_id), -- avalia um produto específico (opcional, pode ser avaliação do anunciante em geral)
+    nota DECIAML(3, 2) NOT NULL CHECK (nota >= 0 AND nota <= 5), -- avaliar se deve começar do 0 mesmo
+    comentario TEXT,
+    data_avaliacao TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    -- restrição para evitar que um unico usuario avalie o mesmo produto ou anunciante varias vezes
+    UNIQUE (usuario_avaliador_id, usuario_avaliado_id, anuncio_id) -- verificar possibilidade de alterar para cada aquisição
+);
+-- adicionando indice para otimizar consultas na tabela avaliacoes
+CREATE INDEX idx_usuario_avaliado_id ON avaliacoes (usuario_avaliado_id);
+CREATE INDEX idx_anuncio_id ON avaliacoes (anuncio_id);
 
 -- insere role(cargo) na tabela roles
 INSERT INTO roles (nome_role) VALUES ('Cliente');
