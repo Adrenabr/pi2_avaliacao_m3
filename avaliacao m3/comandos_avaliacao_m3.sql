@@ -153,3 +153,10 @@ INSERT INTO usuarios_roles (usuario_id, role_id) VALUES (1, (SELECT role_id FROM
 -- OBS: Para associar mais de uma role a um mesmo usuário apenas modifique o nome da role
 
 SELECT * FROM usuarios_roles;
+-- isere anuncios
+INSERT INTO anuncios (usuario_id, categoria_id, titulo_anuncio, descricao, preco, localizacao, destaque)
+VALUES (3, 4, 'Mouse Gamer Novo na Caixa', 'Vendo Mouse Gamer modelo X, novo, lacrado na caixa. Ótimo preço!', 200.50, 'Campo Grande, MS', TRUE);
+INSERT INTO anuncios (usuario_id, categoria_id, titulo_anuncio, descricao, preco, localizacao, destaque)
+VALUES (2, 6, 'Bolos personalizados para festas', 'Vendo bolos sob encomenda para festas, comemorações e eventos a partir de R$120,00 .', 120.00, 'Campo Grande, MS', TRUE);
+
+SELECT * FROM anuncios;
