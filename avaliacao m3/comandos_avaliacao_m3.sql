@@ -139,7 +139,7 @@ SET descricao = 'Produtos alimentícios.'
 WHERE nome_categoria = 'Alimentação';
 
 -- remove
-DELETE FROM categorias WHERE categoria_nome = 'Esportes';
+DELETE FROM categorias WHERE nome_categoria = 'Esportes';
 
 SELECT * FROM categorias;
 
@@ -151,3 +151,5 @@ INSERT INTO roles (nome_role) VALUES ('anunciante');
 -- associa um usuario a uma role(cargo) na tabela de junção usuarios_roles onde: (usuario_id, (SELECIONA role_id DE roles ONDE nome_role = 'Nome_da_role'))
 INSERT INTO usuarios_roles (usuario_id, role_id) VALUES (1, (SELECT role_id FROM roles WHERE nome_role = 'cliente'));
 -- OBS: Para associar mais de uma role a um mesmo usuário apenas modifique o nome da role
+
+SELECT * FROM usuarios_roles;
